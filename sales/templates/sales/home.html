@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Splash Screen Styles */
+    #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease-out;
+    }
+    
+    .splash-logo {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .splash-logo i {
+        margin-right: 15px;
+        font-size: 4rem;
+    }
+    
+    .splash-subtitle {
+        font-size: 1.5rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Main Content Styles */
+    #main-content {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+    }
+    
+    .hero-section {
+        background: linear-gradient(rgba(67, 97, 238, 0.1), rgba(67, 97, 238, 0.05));
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: #555;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+    }
+    
+    .cta-button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-desc {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .stats-section {
+        background: var(--primary-color);
+        color: white;
+        padding: 4rem 0;
+        border-radius: 16px;
+        margin: 4rem 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Animated Splash Screen -->
+<div id="splash-screen">
+    <div class="splash-logo">
+        <i class="fas fa-cash-register"></i>
+        <span>InstallEase</span>
+    </div>
+    <div class="splash-subtitle">Smart Installment Solutions</div>
+    <div class="spinner"></div>
+</div>
+
+<!-- Modern Homepage Content -->
+<div id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Revolutionizing Installment Purchases</h1>
+        <p class="hero-subtitle">
+            Experience seamless installment plans with our intuitive platform designed 
+            for both businesses and customers.
+        </p>
+       
+    </section>
+    
+    <!-- Features Grid -->
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <h3 class="feature-title">Flexible Payments</h3>
+            <p class="feature-desc">
+                Customizable installment plans tailored to your financial situation with competitive rates.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="feature-title">Secure Process</h3>
+            <p class="feature-desc">
+                Bank-grade security protecting all your transactions and personal information.
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-mobile-alt"></i>
+            </div>
+            <h3 class="feature-title">Mobile Friendly</h3>
+            <p class="feature-desc">
+                Manage your installments anytime, anywhere with our responsive platform.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">₨500M+</div>
+                    <div class="stat-label">Processed</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">99.7%</div>
+                    <div class="stat-label">Satisfaction Rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <div class="text-center mt-5">
+        <h2 class="mb-4">Ready to experience the future of installments?</h2>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i> Login to Your Account
+        </a>
+        {% else %}
+        <a href="{% url 'product_list' %}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-boxes me-2"></i> Browse Products
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Animate splash screen out and main content in
+        setTimeout(function() {
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            
+            // Fade out splash screen
+            splash.style.opacity = '0';
+            
+            // After fade out completes, remove splash and show main content
+            setTimeout(function() {
+                splash.style.display = 'none';
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            }, 500); // Match this with the CSS transition time
+        }, 2500); // Show splash for 2.5 seconds
+    });
+</script>
+{% endblock %}

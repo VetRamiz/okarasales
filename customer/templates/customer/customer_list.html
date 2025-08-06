@@ -1,0 +1,49 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Customer List{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">Customer List</h3>
+
+    <form method="get" class="mb-4">
+        <input type="text" name="q" class="form-control" placeholder="Search by name or email" value="{{ request.GET.q }}">
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Assigned Product</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in customer_data %}
+                <tr onclick="window.location.href='#';" style="cursor: pointer;">
+                    <td>{{ item.customer.user.username }}</td>
+                    <td>{{ item.customer.user.email }}</td>
+                    <td>
+                        {% if item.assigned_product %}
+                            {{ item.assigned_product }}
+                        {% else %}
+                            <span class="text-muted">No Product Assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'assign_product' item.customer.id %}" class="btn btn-sm btn-primary">Assign Product</a>
+                        <a href="#" class="btn btn-sm btn-secondary">Payment Details</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No customers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

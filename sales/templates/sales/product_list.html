@@ -1,0 +1,56 @@
+{% extends 'staff/base_staff.html' %}
+{% load product_extras %}
+
+{% block title %}Product List{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Product Catalog</h3>
+
+    <div class="mb-4 text-center">
+        <strong>Filter by Category:</strong>
+        {% for cat in categories %}
+            <a href="?category={{ cat }}" class="btn btn-outline-primary btn-sm mx-1 {% if cat == selected_category %}active{% endif %}">{{ cat }}</a>
+        {% endfor %}
+        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-sm mx-1">All</a>
+    </div>
+    <a href="{% url 'add_product' %}" class="btn btn-primary">Add New Product</a>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+
+                <!-- Bootstrap Carousel inside card -->
+                <div id="carousel{{ product.id }}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for img in product|get_images %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ img.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if product|get_images|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ product.id }}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ product.id }}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.specs|truncatechars:100 }}</p>
+                    <p class="card-text"><strong>Price (Cash):</strong> Rs. {{ product.direct_cash_price }}</p>
+                    <p class="card-text"><strong>Stock:</strong> {{ product.stock }}</p>
+                </div>
+               
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

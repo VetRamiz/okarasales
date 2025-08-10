@@ -1,0 +1,268 @@
+{% extends 'staff/base_staff.html' %}
+{% load custom_tags %}
+
+{% block title %}Customer Details - {{ customer.user.get_full_name|default:customer.user.username }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+        #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .card {
+            border: 1px solid #ddd !important;
+            page-break-inside: avoid;
+        }
+    }
+    
+    .customer-header {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+        border-radius: 50px;
+    }
+    .payment-table th {
+        white-space: nowrap;
+    }
+    .product-card {
+        border-left: 4px solid #4361ee;
+        transition: all 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .progress-thin {
+        height: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" id="print-section">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-user-circle me-2"></i>
+                Customer Details
+            </h2>
+            <p class="text-muted mb-0">Generated on {% now "M d, Y H:i" %}</p>
+        </div>
+        <div class="no-print">
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                <button class="btn btn-outline-success" id="exportBtn">
+                    <i class="fas fa-file-export me-1"></i> Export
+                </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2"></i> Send Statement</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i> Edit Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-ban me-2"></i> Block Customer</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Profile Card -->
+    <div class="card mb-4 product-card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="mb-3">
+                        {{ customer.user.get_full_name|default:customer.user.username }}
+                        <span class="badge bg-primary ms-2">ID: {{ customer.id }}</span>
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong><i class="fas fa-envelope me-2 text-muted"></i> Email:</strong> {{ customer.user.email }}</p>
+                            <p><strong><i class="fas fa-id-card me-2 text-muted"></i> CNIC:</strong> {{ customer.cnic|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong><i class="fas fa-phone me-2 text-muted"></i> Phone:</strong> {{ customer.phone_number }}</p>
+                            <p><strong><i class="fas fa-map-marker-alt me-2 text-muted"></i> Address:</strong> {{ customer.address|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex flex-column h-100 justify-content-between">
+                        <div class="mb-3">
+                            <span class="badge bg-info text-dark">
+                                <i class="fas fa-calendar-alt me-1"></i> Member since {{ customer.user.date_joined|date:"M Y" }}
+                            </span>
+                        </div>
+                        <div>
+                            <h5 class="text-success">
+                                <i class="fas fa-wallet me-1"></i> 
+                                {{ purchases.count }} Purchase{{ purchases.count|pluralize }}
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchased Products Section -->
+    <h4 class="mb-3">
+        <i class="fas fa-shopping-bag me-2"></i>
+        Purchased Products
+    </h4>
+
+    {% if purchases %}
+        {% for sale in purchases %}
+        <div class="card mb-4 product-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4 class="mb-1">
+                            {{ sale.product.name }}
+                            <span class="badge bg-secondary ms-2">Batch: {{ sale.product.batch }}</span>
+                        </h4>
+                        <p class="text-muted mb-2"><i class="fas fa-info-circle me-1"></i> {{ sale.product.specs }}</p>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="text-primary">Rs. {{ sale.final_price }}</h5>
+                        <small class="text-muted">{{ sale.duration_months }} month{{ sale.duration_months|pluralize }} plan</small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <p><strong><i class="fas fa-calendar-start me-2 text-muted"></i> Start Date:</strong> {{ sale.start_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong><i class="fas fa-calendar-end me-2 text-muted"></i> End Date:</strong> {{ sale.end_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong><i class="fas fa-money-bill-wave me-2 text-muted"></i> Installment:</strong> {{ sale.number_of_installments }} × Rs. {{ sale.monthly_installment }}</p>
+                    </div>
+                </div>
+
+                {% with data=payments_by_sale|get_item:sale.id %}
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Payment Progress</h5>
+                        <div>
+                            <span class="me-3">Paid: <strong>Rs. {{ data.total_paid }}</strong></span>
+                            <span>Remaining: <strong>Rs. {{ data.remaining }}</strong></span>
+                        </div>
+                    </div>
+                    <div class="progress progress-thin mb-3">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {{ data.payment_percentage }}%" 
+                             aria-valuenow="{{ data.payment_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mb-3"><i class="fas fa-receipt me-2"></i> Payment History</h5>
+                {% if data.payments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover payment-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in data.payments %}
+                                <tr>
+                                    <td>{{ payment.installment_number }}</td>
+                                    <td>Rs. {{ payment.amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if payment.payment_method == 'Cash' %}primary{% else %}info{% endif %}">
+                                            {{ payment.payment_method }}
+                                        </span>
+                                    </td>
+                                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-success status-badge">
+                                            <i class="fas fa-check-circle me-1"></i> Paid
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No payments recorded yet for this product.
+                    </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-4"></i>
+                <h4 class="text-muted">No Purchases Found</h4>
+                <p class="text-muted">This customer hasn't purchased any products yet.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Footer Actions -->
+    <div class="no-print mt-4 text-center">
+        <button class="btn btn-primary me-2" onclick="window.print()">
+            <i class="fas fa-print me-1"></i> Print Statement
+        </button>
+        <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Customers
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Export functionality
+document.getElementById('exportBtn').addEventListener('click', function() {
+    // This would be replaced with actual export logic
+    alert('Export functionality would be implemented here');
+    // Typically you would make an AJAX call to a server endpoint
+    // that generates and returns a CSV/PDF file
+});
+
+// Print optimization
+window.onbeforeprint = function() {
+    // You could add any pre-print modifications here
+    console.log('Preparing for print...');
+};
+</script>
+{% endblock %}

@@ -15,16 +15,38 @@ class ProductForm(forms.ModelForm):
 from django import forms
 from .models import InstallmentSale, Guarantor
 
+from django import forms
+from .models import InstallmentSale
+
+from django import forms
+from django.db.models import Q
+from .models import InstallmentSale, Product
+
 class InstallmentSaleForm(forms.ModelForm):
     class Meta:
         model = InstallmentSale
-        fields = ['product', 'customer', 'quantity', 'percentage_increase', 'duration_months', 'number_of_installments', 'end_date']
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['product'].label_from_instance = lambda obj: f"{obj.name} (Batch: {obj.batch})"
+        fields = [
+            'quantity', 'percentage_increase',
+            'final_price', 'duration_months', 'number_of_installments', 'end_date'
+        ]
+
+
         
 class GuarantorForm(forms.ModelForm):
     class Meta:
         model = Guarantor
         fields = ['guarantor_name_1', 'guarantor_cnic_1', 'guarantor_contact_1',
                   'guarantor_name_2', 'guarantor_cnic_2', 'guarantor_contact_2']
+        
+
+from django import forms
+from .models import Payment
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['installment_number', 'amount', 'payment_method', 'payment_date']
+        widgets = {
+            'payment_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+

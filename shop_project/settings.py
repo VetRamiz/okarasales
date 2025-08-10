@@ -140,3 +140,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store uploaded file
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/post-login/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1600  # 1 hour or any short duration

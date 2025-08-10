@@ -1,0 +1,70 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Payment History{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">
+        Payment History - {{ sale.customer.user.username }} ({{ sale.product.name }})
+    </h3>
+
+    {% if payments %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Installment #</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ payment.installment_number }}</td>
+                    <td>Rs. {{ payment.amount }}</td>
+                    <td>{{ payment.get_payment_method_display }}</td>
+                    <td>{{ payment.payment_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted">No payments recorded yet.</p>
+    {% endif %}
+
+    <hr class="my-4">
+
+    <h4>Add New Payment</h4>
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3">
+                {{ form.installment_number.label_tag }}
+                {{ form.installment_number }}
+            </div>
+            <div class="col-md-3">
+                {{ form.amount.label_tag }}
+                {{ form.amount }}
+            </div>
+            <div class="col-md-3">
+                {{ form.payment_method.label_tag }}
+                {{ form.payment_method }}
+            </div>
+            <div class="col-md-3">
+                {{ form.payment_date.label_tag }}
+                {{ form.payment_date }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success mt-3">Add Payment</button>
+    </form>
+
+    <div class="mt-4">
+        <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">← Back to Customer List</a>
+    </div>
+</div>
+{% endblock %}

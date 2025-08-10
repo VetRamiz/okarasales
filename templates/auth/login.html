@@ -2,93 +2,147 @@
 
 {% block title %}Login{% endblock %}
 
+{% block extra_head %}
+<style>
+    .auth-container {
+        max-width: 450px;
+    }
+    .auth-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .auth-header {
+        background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .auth-body {
+        padding: 2rem;
+        background: white;
+    }
+    .login-input {
+        border-radius: 8px;
+        padding: 1rem;
+        height: auto;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s;
+    }
+    .login-input:focus {
+        border-color: #4361ee;
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    .form-floating>label {
+        padding: 0.8rem 1rem;
+        color: #6c757d;
+    }
+    .btn-login {
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+    }
+    .forgot-password {
+        text-align: right;
+        margin-top: -0.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h3><i class="fas fa-sign-in-alt me-2"></i>Login to Your Account</h3>
-        </div>
-        <div class="auth-body">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                <div class="mb-4">
+<div class="container">
+    <div class="auth-container mx-auto my-5">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h3><i class="fas fa-sign-in-alt me-2"></i>Account Login</h3>
+            </div>
+            <div class="auth-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger mb-4">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
                     <div class="form-floating mb-3">
-                        {{ form.username }}
+                        <input type="text" 
+                               class="form-control login-input" 
+                               id="{{ form.username.id_for_label }}" 
+                               name="{{ form.username.name }}"
+                               placeholder="Username"
+                               required>
                         <label for="{{ form.username.id_for_label }}">Username</label>
                         {% if form.username.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.username.errors|striptags }}
-                            </div>
+                        <div class="invalid-feedback d-block">
+                            {{ form.username.errors|striptags }}
+                        </div>
                         {% endif %}
                     </div>
                     
                     <div class="form-floating mb-3">
-                        {{ form.password }}
+                        <input type="password" 
+                               class="form-control login-input" 
+                               id="{{ form.password.id_for_label }}" 
+                               name="{{ form.password.name }}"
+                               placeholder="Password"
+                               required>
                         <label for="{{ form.password.id_for_label }}">Password</label>
                         {% if form.password.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.password.errors|striptags }}
-                            </div>
+                        <div class="invalid-feedback d-block">
+                            {{ form.password.errors|striptags }}
+                        </div>
                         {% endif %}
                     </div>
                     
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                        <label class="form-check-label" for="rememberMe">
-                            Remember me
-                        </label>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
-                    </button>
-                </div>
-            </form>
-            
-           
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-login">
+                            <i class="fas fa-sign-in-alt me-2"></i> Login
+                        </button>
+                    </div>
+                </form>
+                
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Add form-control class to all input fields
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('input').forEach(element => {
-            if (!element.classList.contains('btn') && element.type !== 'checkbox') {
-                element.classList.add('form-control');
-                element.classList.add('py-3');
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus username field
+    document.getElementById('{{ form.username.id_for_label }}').focus();
+    
+    // Floating labels functionality
+    const floatInputs = document.querySelectorAll('.form-floating input');
+    floatInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentNode.classList.remove('focused');
             }
         });
         
-        // Add floating labels functionality
-        const floatInputs = document.querySelectorAll('.form-floating input');
-        floatInputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentNode.classList.add('focused');
-            });
-            
-            input.addEventListener('blur', function() {
-                if (!this.value) {
-                    this.parentNode.classList.remove('focused');
-                }
-            });
-            
-            // Initialize state
-            if (input.value) {
-                input.parentNode.classList.add('focused');
-            }
-        });
+        // Initialize state
+        if (input.value) {
+            input.parentNode.classList.add('focused');
+        }
     });
+});
 </script>
 {% endblock %}

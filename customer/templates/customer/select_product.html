@@ -1,0 +1,81 @@
+{% extends 'staff/base_staff.html' %}
+{% load static %}
+
+{% block title %}Select Product{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Select a Product for Assignment</h3>
+    </div>
+
+    <!-- Search Form -->
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" value="{{ query }}" class="form-control"
+                   placeholder="🔍 Search by name or category">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    {% if products %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                {% if product.image_1 %}
+                    <img src="{{ product.image_1.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="No image">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">
+                        <strong>Category:</strong> {{ product.get_category_display }}<br>
+                        <strong>Stock:</strong> {{ product.available_stock }}<br>
+                        <strong>Cash Price:</strong> {{ product.direct_cash_price }}
+                    </p>
+                    <a href="{% url 'assign_with_guarantor' customer_id=customer_id product_id=product.id %}" 
+                       class="btn btn-primary btn-sm">
+                       Select
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?q={{ query }}&page={{ products.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > products.number|add:-3 and num < products.number|add:3 %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?q={{ query }}&page={{ products.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% else %}
+        <div class="alert alert-warning text-center">No products found matching your search.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -22,19 +22,28 @@
             </thead>
             <tbody>
                 {% for item in customer_data %}
-                <tr onclick="window.location.href='#';" style="cursor: pointer;">
+                <tr>
                     <td>{{ item.customer.user.username }}</td>
                     <td>{{ item.customer.user.email }}</td>
                     <td>
-                        {% if item.assigned_product %}
-                            {{ item.assigned_product }}
+                        {% if item.sale %}
+                            {{ item.sale.product.name }}
                         {% else %}
                             <span class="text-muted">No Product Assigned</span>
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'assign_product' item.customer.id %}" class="btn btn-sm btn-primary">Assign Product</a>
-                        <a href="#" class="btn btn-sm btn-secondary">Payment Details</a>
+                        <a href="{% url 'select_product' item.customer.id %}" class="btn btn-sm btn-primary">Assign Product</a>
+
+                        {% if item.sale %}
+                        <a href="{% url 'payment_history_add' item.sale.id %}" class="btn btn-sm btn-secondary">Payment Details</a>
+
+                        
+                        {% else %}
+                            <span class="text-muted">No Payment</span>
+                        {% endif %}
+
+                        <a href="{% url 'customer_detail_staff' item.customer.id %}" class="btn btn-sm btn-outline-info">View Details</a>
                     </td>
                 </tr>
                 {% empty %}

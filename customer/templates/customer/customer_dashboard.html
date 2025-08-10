@@ -1,31 +1,254 @@
-{% extends 'base.html' %}
+{% extends 'customer/base_customer.html' %}
+{% load static %}
+{% load custom_tags %}
 
-{% block title %}Customer Dashboard{% endblock %}
+{% block title %}Customer Dashboard | {{ customer.user.get_full_name|default:customer.user.username }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 25px;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    .payment-badge {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+        border-radius: 50px;
+    }
+    .status-indicator {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .progress-thin {
+        height: 8px;
+    }
+    .product-image {
+        max-height: 120px;
+        object-fit: contain;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h3 class="text-center mb-4">Your Purchased Products</h3>
+<div class="container py-4">
+    <!-- Welcome Header with Quick Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Welcome, {{ customer.user.get_full_name|default:customer.user.username }}</h2>
+            <p class="text-muted">Last login: {{ customer.user.last_login|date:"M d, Y H:i" }}</p>
+        </div>
+        <div>
+
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Summary Card -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Profile Information</h5>
+            <span class="badge bg-light text-dark">
+                <i class="fas fa-user-circle me-1"></i> Customer ID: {{ customer.id }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-envelope me-2 text-secondary"></i> Email</h6>
+                        <p>{{ customer.user.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-id-badge me-2 text-secondary"></i> CNIC</h6>
+                        <p>{{ customer.cnic|default:"Not provided" }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-phone me-2 text-secondary"></i> Phone</h6>
+                        <p>{{ customer.phone_number|default:"Not provided" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-map-marker-alt me-2 text-secondary"></i> Address</h6>
+                        <p>{{ customer.address|default:"Not provided"|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchased Products Section -->
+    <h3 class="mb-4 d-flex align-items-center">
+        <i class="fas fa-shopping-bag me-3 text-primary"></i>
+        Your Purchased Products
+    </h3>
 
     {% if sales %}
-        <div class="row">
-            {% for sale in sales %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ sale.product.name }}</h5>
-                            <p><strong>Specs:</strong> {{ sale.product.specs|truncatewords:20 }}</p>
-                            <p><strong>Final Price:</strong> Rs. {{ sale.final_price }}</p>
-                            <p><strong>Installments:</strong> {{ sale.number_of_installments }} @ Rs. {{ sale.monthly_installment }}</p>
-                            <p><strong>Start:</strong> {{ sale.start_date }} | <strong>End:</strong> {{ sale.end_date }}</p>
+        {% for sale in sales %}
+        <div class="card dashboard-card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4 class="card-title mb-1">
+                            {{ sale.product.name }} 
+                            <span class="badge bg-info text-dark ms-2">Batch: {{ sale.product.batch }}</span>
+                        </h4>
+                        <p class="text-muted mb-2"><i class="fas fa-info-circle me-1"></i> {{ sale.product.specs }}</p>
+                    </div>
+                    {% if sale.product.image %}
+                    <img src="{{ sale.product.image.url }}" alt="{{ sale.product.name }}" class="product-image">
+                    {% endif %}
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6><i class="fas fa-tag me-2"></i> Final Price</h6>
+                            <h4 class="text-primary">Rs. {{ sale.final_price }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6><i class="fas fa-calendar-alt me-2"></i> Installment Plan</h6>
+                            <p class="mb-1">{{ sale.number_of_installments }} x Rs. {{ sale.monthly_installment }}</p>
+                            <small class="text-muted">{{ sale.start_date|date:"M d, Y" }} to {{ sale.end_date|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6><i class="fas fa-clock me-2"></i> Status</h6>
+                            {% with data=payment_info|get_item:sale.id %}
+                                {% if data.remaining <= 0 %}
+                                    <span class="badge bg-success payment-badge">
+                                        <i class="fas fa-check-circle me-1"></i> Fully Paid
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark payment-badge">
+                                        <i class="fas fa-clock me-1"></i> {{ data.remaining_installments }} Payments Left
+                                    </span>
+                                {% endif %}
+                            {% endwith %}
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+
+                {% with data=payment_info|get_item:sale.id %}
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5><i class="fas fa-chart-line me-2"></i> Payment Progress</h5>
+                        <div>
+                            <span class="me-3">Paid: <strong>Rs. {{ data.total_paid }}</strong></span>
+                            <span>Remaining: <strong>Rs. {{ data.remaining }}</strong></span>
+                        </div>
+                    </div>
+                    <div class="progress progress-thin mb-4">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {{ data.payment_percentage }}%" 
+                             aria-valuenow="{{ data.payment_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3"><i class="fas fa-history me-2"></i> Payment History</h5>
+                    {% if data.payments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in data.payments %}
+                                    <tr>
+                                        <td>{{ payment.installment_number }}</td>
+                                        <td>Rs. {{ payment.amount }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if payment.payment_method == 'Cash' %}primary{% else %}info{% endif %}">
+                                                {{ payment.payment_method }}
+                                            </span>
+                                        </td>
+                                        <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="status-indicator bg-success"></span>
+                                            Completed
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No payments recorded yet.
+                        </div>
+                    {% endif %}
+
+                    {% if data.remaining > 0 %}
+                    <div class="text-end mt-3">
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-money-bill-wave me-1"></i> Make Payment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </div>
         </div>
+        {% endfor %}
     {% else %}
-        <div class="alert alert-info text-center">
-            No product assigned to your profile yet.
+        <div class="card dashboard-card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-4"></i>
+                <h4 class="text-muted">No Products Assigned</h4>
+                <p class="text-muted">You haven't purchased any products yet.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-shopping-cart me-1"></i> Browse Products
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Prevent form resubmission on refresh
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
+// Tooltip initialization
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
 {% endblock %}
